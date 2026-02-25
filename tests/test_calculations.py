@@ -1,25 +1,26 @@
 """
 Tests for the Calculation Module
-===================================
+=================================
 
-Parameterized tests covering Calculation, CalculationFactory,
-and CalculationHistory classes with positive and negative cases.
+Parameterized tests for ``Calculation`` and ``CalculationFactory``,
+covering creation, string representations, and error paths.
 """
 
 import pytest
 from decimal import Decimal
 
-from app.operation import add, subtract, multiply, divide
-from app.calculation import Calculation, CalculationFactory, CalculationHistory
+from app.operations import add, subtract, multiply, divide, power, root
+from app.calculation import Calculation, CalculationFactory
+from app.exceptions import DivisionByZeroError, InvalidOperationError
 
 
 # ===========================================================================
-# Calculation class tests
+# Calculation class
 # ===========================================================================
 
 
 class TestCalculation:
-    """Tests for the Calculation data class."""
+    """Tests for the Calculation data model."""
 
     @pytest.mark.parametrize(
         "a, b, operation, op_name, expected",
@@ -28,21 +29,23 @@ class TestCalculation:
             (Decimal("10"), Decimal("4"), subtract, "subtract", Decimal("6")),
             (Decimal("6"), Decimal("7"), multiply, "multiply", Decimal("42")),
             (Decimal("20"), Decimal("4"), divide, "divide", Decimal("5")),
+            (Decimal("2"), Decimal("8"), power, "power", Decimal("256")),
+            (Decimal("9"), Decimal("2"), root, "root", Decimal("3")),
         ],
-        ids=["add", "subtract", "multiply", "divide"],
+        ids=["add", "subtract", "multiply", "divide", "power", "root"],
     )
-    def test_calculation_computes_result(
-        self, a: Decimal, b: Decimal, operation, op_name: str, expected: Decimal
+    def test_calculation_result(
+        self, a, b, operation, op_name, expected
     ) -> None:
-        """Test that Calculation computes the correct result on creation."""
+        """Test that Calculation computes the correct result."""
         calc = Calculation(a, b, operation, op_name)
         assert calc.result == expected
         assert calc.operand_a == a
         assert calc.operand_b == b
         assert calc.operation_name == op_name
 
-    def test_calculation_repr(self) -> None:
-        """Test the repr output of a Calculation."""
+    def test_repr(self) -> None:
+        """Test __repr__ output."""
         calc = Calculation(Decimal("2"), Decimal("3"), add, "add")
         assert "Calculation" in repr(calc)
         assert "add" in repr(calc)
@@ -55,32 +58,32 @@ class TestCalculation:
             (Decimal("10"), Decimal("4"), subtract, "subtract", "-"),
             (Decimal("6"), Decimal("7"), multiply, "multiply", "*"),
             (Decimal("20"), Decimal("4"), divide, "divide", "/"),
+            (Decimal("2"), Decimal("8"), power, "power", "^"),
+            (Decimal("9"), Decimal("2"), root, "root", "√"),
         ],
-        ids=["add_symbol", "subtract_symbol", "multiply_symbol", "divide_symbol"],
+        ids=["add_sym", "sub_sym", "mul_sym", "div_sym", "pow_sym", "root_sym"],
     )
-    def test_calculation_str(
-        self, a: Decimal, b: Decimal, operation, op_name: str, expected_symbol: str
+    def test_str_symbol(
+        self, a, b, operation, op_name, expected_symbol
     ) -> None:
-        """Test the user-friendly string representation."""
-        calc = Calculation(a, b, operation, op_name)
-        result_str = str(calc)
+        """Test that __str__ uses the correct symbol."""
+        result_str = str(Calculation(a, b, operation, op_name))
         assert expected_symbol in result_str
         assert "=" in result_str
 
-    def test_calculation_str_unknown_operation(self) -> None:
-        """Test str when operation_name is not in the symbol map."""
+    def test_str_unknown_operation(self) -> None:
+        """Test __str__ falls back to operation_name when no symbol mapped."""
         calc = Calculation(Decimal("2"), Decimal("3"), add, "custom_op")
-        result_str = str(calc)
-        assert "custom_op" in result_str
+        assert "custom_op" in str(calc)
 
-    def test_calculation_division_by_zero(self) -> None:
-        """Test that creating a division-by-zero Calculation raises."""
-        with pytest.raises(ZeroDivisionError):
+    def test_division_by_zero(self) -> None:
+        """Creating a divide-by-zero Calculation raises DivisionByZeroError."""
+        with pytest.raises(DivisionByZeroError):
             Calculation(Decimal("10"), Decimal("0"), divide, "divide")
 
 
 # ===========================================================================
-# CalculationFactory tests
+# CalculationFactory
 # ===========================================================================
 
 
@@ -94,83 +97,28 @@ class TestCalculationFactory:
             ("subtract", Decimal("10"), Decimal("3"), Decimal("7")),
             ("multiply", Decimal("4"), Decimal("5"), Decimal("20")),
             ("divide", Decimal("10"), Decimal("2"), Decimal("5")),
+            ("power", Decimal("2"), Decimal("3"), Decimal("8")),
+            ("root", Decimal("27"), Decimal("3"), Decimal("3")),
         ],
-        ids=["factory_add", "factory_subtract", "factory_multiply", "factory_divide"],
+        ids=["add", "subtract", "multiply", "divide", "power", "root"],
     )
-    def test_create_valid_operations(
-        self, op_name: str, a: Decimal, b: Decimal, expected: Decimal
-    ) -> None:
-        """Test that the factory creates Calculation instances correctly."""
+    def test_create_valid(self, op_name, a, b, expected) -> None:
+        """Factory creates correct Calculation instances."""
         calc = CalculationFactory.create(a, b, op_name)
         assert calc.result == expected
         assert calc.operation_name == op_name
 
     def test_create_unknown_operation(self) -> None:
-        """Test that an unknown operation raises ValueError."""
-        with pytest.raises(ValueError, match="Unknown operation"):
+        """Unknown operation raises InvalidOperationError."""
+        with pytest.raises(InvalidOperationError, match="Unknown operation"):
             CalculationFactory.create(Decimal("1"), Decimal("2"), "modulo")
 
     def test_create_division_by_zero(self) -> None:
-        """Test that factory propagates ZeroDivisionError."""
-        with pytest.raises(ZeroDivisionError):
+        """Factory propagates DivisionByZeroError."""
+        with pytest.raises(DivisionByZeroError):
             CalculationFactory.create(Decimal("10"), Decimal("0"), "divide")
 
     def test_get_supported_operations(self) -> None:
-        """Test that all four operations are returned."""
-        operations = CalculationFactory.get_supported_operations()
-        assert "add" in operations
-        assert "subtract" in operations
-        assert "multiply" in operations
-        assert "divide" in operations
-        assert len(operations) == 4
-
-
-# ===========================================================================
-# CalculationHistory tests
-# ===========================================================================
-
-
-class TestCalculationHistory:
-    """Tests for the CalculationHistory."""
-
-    def test_empty_history(self) -> None:
-        """Test that a new history is empty."""
-        history = CalculationHistory()
-        assert len(history) == 0
-        assert history.get_all() == []
-        assert history.get_latest() is None
-
-    def test_add_and_retrieve(self) -> None:
-        """Test adding a calculation and retrieving it."""
-        history = CalculationHistory()
-        calc = Calculation(Decimal("2"), Decimal("3"), add, "add")
-        history.add(calc)
-        assert len(history) == 1
-        assert history.get_latest() == calc
-        assert history.get_all() == [calc]
-
-    def test_multiple_calculations(self) -> None:
-        """Test that multiple calculations are stored in order."""
-        history = CalculationHistory()
-        calc1 = Calculation(Decimal("1"), Decimal("2"), add, "add")
-        calc2 = Calculation(Decimal("5"), Decimal("3"), subtract, "subtract")
-        history.add(calc1)
-        history.add(calc2)
-        assert len(history) == 2
-        assert history.get_latest() == calc2
-        assert history.get_all() == [calc1, calc2]
-
-    def test_clear_history(self) -> None:
-        """Test clearing the history."""
-        history = CalculationHistory()
-        history.add(Calculation(Decimal("1"), Decimal("2"), add, "add"))
-        history.clear()
-        assert len(history) == 0
-        assert history.get_latest() is None
-
-    def test_repr(self) -> None:
-        """Test the repr of CalculationHistory."""
-        history = CalculationHistory()
-        assert "0 calculations" in repr(history)
-        history.add(Calculation(Decimal("1"), Decimal("2"), add, "add"))
-        assert "1 calculations" in repr(history)
+        """All six operations are returned."""
+        ops = CalculationFactory.get_supported_operations()
+        assert set(ops) == {"add", "subtract", "multiply", "divide", "power", "root"}

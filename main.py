@@ -1,6 +1,6 @@
 """Entry point for the Calculator application."""
 
-from app.calculator import Calculator
+from app.calculator_repl import Calculator
 
 
 def main() -> None:
@@ -9,5 +9,5 @@ def main() -> None:
     calculator.run()
 
 
-if __name__ == "__main__":
-    main()  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
+    main()

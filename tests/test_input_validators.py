@@ -43,8 +43,10 @@ class TestValidateInputParts:
             ["add", "5"],
             ["add", "5", "3", "2"],
             [],
+            ["sqrt"],
+            ["sqrt", "9", "3"],
         ],
-        ids=["one_token", "two_tokens", "four_tokens", "empty"],
+        ids=["one_token", "two_tokens", "four_tokens", "empty", "sqrt_no_args", "sqrt_too_many_args"],
     )
     def test_wrong_token_count(self, parts: list[str]) -> None:
         """Incorrect number of tokens returns an error."""

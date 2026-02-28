@@ -6,7 +6,7 @@ Provides arithmetic operations as standalone functions and a registry
 dictionary that maps operation names to their callables (Strategy Pattern).
 
 Supported operations:
-    add, subtract, multiply, divide, power, root
+    add, subtract, multiply, divide, power, root, percentage
 
 The ``get_operation`` helper retrieves a callable by name.
 
@@ -99,6 +99,18 @@ def root(a: Decimal, b: Decimal) -> Decimal:
     return a ** (Decimal("1") / b)
 
 
+def percentage(a: Decimal, b: Decimal) -> Decimal:
+    """Return *b* percent of *a*.
+
+    Computes ``a * (b / 100)``.
+
+    Examples:
+        >>> percentage(Decimal('200'), Decimal('10'))
+        Decimal('20')
+    """
+    return a * (b / Decimal("100"))
+
+
 # ---------------------------------------------------------------------------
 # Strategy registry
 # ---------------------------------------------------------------------------
@@ -111,6 +123,7 @@ OPERATIONS: dict[str, callable] = {
     "divide": divide,
     "power": power,
     "root": root,
+    "percentage": percentage,
 }
 
 

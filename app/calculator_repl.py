@@ -195,6 +195,7 @@ class Calculator:
             "  divide 20 4    => 20 / 4 = 5\n"
             "  power 2 8      => 2 ^ 8 = 256\n"
             "  root 9 2       => 9 √ 2 = 3\n"
+            "  percentage 200 10 => 200 % 10 = 20\n"
             "\n"
             "Special commands:\n"
             "  help / ?   - Show this help message\n"

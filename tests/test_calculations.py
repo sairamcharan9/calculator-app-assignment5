@@ -9,7 +9,7 @@ covering creation, string representations, and error paths.
 import pytest
 from decimal import Decimal
 
-from app.operations import add, subtract, multiply, divide, power, root
+from app.operations import add, subtract, multiply, divide, power, root, percentage
 from app.calculation import Calculation, CalculationFactory
 from app.exceptions import DivisionByZeroError, InvalidOperationError
 
@@ -31,8 +31,9 @@ class TestCalculation:
             (Decimal("20"), Decimal("4"), divide, "divide", Decimal("5")),
             (Decimal("2"), Decimal("8"), power, "power", Decimal("256")),
             (Decimal("9"), Decimal("2"), root, "root", Decimal("3")),
+            (Decimal("100"), Decimal("10"), percentage, "percentage", Decimal("10")),
         ],
-        ids=["add", "subtract", "multiply", "divide", "power", "root"],
+        ids=["add", "subtract", "multiply", "divide", "power", "root", "percentage"],
     )
     def test_calculation_result(
         self, a, b, operation, op_name, expected
@@ -60,8 +61,9 @@ class TestCalculation:
             (Decimal("20"), Decimal("4"), divide, "divide", "/"),
             (Decimal("2"), Decimal("8"), power, "power", "^"),
             (Decimal("9"), Decimal("2"), root, "root", "√"),
+            (Decimal("100"), Decimal("10"), percentage, "percentage", "%"),
         ],
-        ids=["add_sym", "sub_sym", "mul_sym", "div_sym", "pow_sym", "root_sym"],
+        ids=["add_sym", "sub_sym", "mul_sym", "div_sym", "pow_sym", "root_sym", "perc_sym"],
     )
     def test_str_symbol(
         self, a, b, operation, op_name, expected_symbol
@@ -99,8 +101,9 @@ class TestCalculationFactory:
             ("divide", Decimal("10"), Decimal("2"), Decimal("5")),
             ("power", Decimal("2"), Decimal("3"), Decimal("8")),
             ("root", Decimal("27"), Decimal("3"), Decimal("3")),
+            ("percentage", Decimal("100"), Decimal("10"), Decimal("10")),
         ],
-        ids=["add", "subtract", "multiply", "divide", "power", "root"],
+        ids=["add", "subtract", "multiply", "divide", "power", "root", "percentage"],
     )
     def test_create_valid(self, op_name, a, b, expected) -> None:
         """Factory creates correct Calculation instances."""
@@ -119,6 +122,7 @@ class TestCalculationFactory:
             CalculationFactory.create(Decimal("10"), Decimal("0"), "divide")
 
     def test_get_supported_operations(self) -> None:
-        """All six operations are returned."""
+        """All operations are returned."""
         ops = CalculationFactory.get_supported_operations()
-        assert set(ops) == {"add", "subtract", "multiply", "divide", "power", "root"}
+        expected_ops = {"add", "subtract", "multiply", "divide", "power", "root", "percentage"}
+        assert set(ops) == expected_ops

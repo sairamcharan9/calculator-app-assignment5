@@ -33,6 +33,7 @@ class Calculation:
         "divide": "/",
         "power": "^",
         "root": "√",
+        "percentage": "%",
     }
 
     def __init__(

@@ -3,7 +3,7 @@ Tests for the Operations Module
 ================================
 
 Parameterized tests covering all six arithmetic operations:
-add, subtract, multiply, divide, power, root — including edge cases
+add, subtract, multiply, divide, power, root, percentage — including edge cases
 (zero, negative numbers, decimals, large numbers, division by zero,
 root by zero).
 
@@ -22,6 +22,7 @@ from app.operations import (
     divide,
     power,
     root,
+    percentage,
     get_operation,
     get_supported_operations,
     OPERATIONS,
@@ -174,6 +175,41 @@ def test_root_by_zero() -> None:
 
 
 # ---------------------------------------------------------------------------
+# percentage
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "a, b, expected",
+    [
+        (Decimal("100"), Decimal("10"), Decimal("10")),
+        (Decimal("200"), Decimal("25"), Decimal("50")),
+        (Decimal("50"), Decimal("50"), Decimal("25")),
+        (Decimal("1000"), Decimal("0"), Decimal("0")),
+        (Decimal("100"), Decimal("100"), Decimal("100")),
+        (Decimal("100"), Decimal("150"), Decimal("150")),
+        (Decimal("0"), Decimal("10"), Decimal("0")),
+        (Decimal("100"), Decimal("0.5"), Decimal("0.5")),  # 0.5% of 100
+        (Decimal("200"), Decimal("-10"), Decimal("-20")), # -10% of 200
+    ],
+    ids=[
+        "10%_of_100",
+        "25%_of_200",
+        "50%_of_50",
+        "0%_of_1000",
+        "100%_of_100",
+        "150%_of_100",
+        "10%_of_0",
+        "0.5%_of_100",
+        "-10%_of_200",
+    ],
+)
+def test_percentage(a: Decimal, b: Decimal, expected: Decimal) -> None:
+    """Test percentage calculation with various inputs."""
+    assert percentage(a, b) == expected
+
+
+# ---------------------------------------------------------------------------
 # Strategy registry helpers
 # ---------------------------------------------------------------------------
 
@@ -183,8 +219,8 @@ class TestStrategyRegistry:
 
     @pytest.mark.parametrize(
         "name",
-        ["add", "subtract", "multiply", "divide", "power", "root"],
-        ids=["add", "subtract", "multiply", "divide", "power", "root"],
+        ["add", "subtract", "multiply", "divide", "power", "root", "percentage"],
+        ids=["add", "subtract", "multiply", "divide", "power", "root", "percentage"],
     )
     def test_get_operation_valid(self, name: str) -> None:
         """Known names return a callable."""
@@ -197,10 +233,11 @@ class TestStrategyRegistry:
             get_operation("modulo")
 
     def test_get_supported_operations(self) -> None:
-        """All six operations are returned."""
+        """All operations are returned."""
         ops = get_supported_operations()
-        assert set(ops) == {"add", "subtract", "multiply", "divide", "power", "root"}
+        expected_ops = {"add", "subtract", "multiply", "divide", "power", "root", "percentage"}
+        assert set(ops) == expected_ops
 
     def test_operations_dict(self) -> None:
         """OPERATIONS dict contains all expected keys."""
-        assert len(OPERATIONS) == 6
+        assert len(OPERATIONS) == 7

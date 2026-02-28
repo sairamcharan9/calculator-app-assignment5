@@ -16,7 +16,7 @@ def validate_input_parts(parts: list[str]) -> str | None:
     """Validate that *parts* has the correct format for a calculation.
 
     Checks:
-        1. Exactly three tokens are present.
+        1. Correct number of tokens for the given operation.
         2. The first token is a recognized operation name.
 
     Args:
@@ -25,20 +25,37 @@ def validate_input_parts(parts: list[str]) -> str | None:
     Returns:
         An error message string if invalid, or ``None`` if valid.
     """
-    if len(parts) != 3:
+    if not parts:
         return (
-            "Error: Invalid format. Please use: <operation> <number1> <number2>\n"
-            "Example: add 5 3\n"
+            "Error: Invalid format. Please enter a command.\n"
             "Type 'help' for available commands."
         )
 
+    operation = parts[0]
     valid_operations = get_supported_operations()
-    if parts[0] not in valid_operations:
+
+    if operation not in valid_operations:
         return (
-            f"Error: Unknown operation '{parts[0]}'.\n"
+            f"Error: Unknown operation '{operation}'.\n"
             f"Available operations: {', '.join(valid_operations)}\n"
             "Type 'help' for more information."
         )
+
+    # Operations requiring one operand
+    if operation in ("sqrt",):
+        if len(parts) != 2:
+            return (
+                f"Error: Invalid format for '{operation}'. Please use: {operation} <number>\n"
+                f"Example: {operation} 9"
+            )
+    # Operations requiring two operands
+    else:
+        if len(parts) != 3:
+            return (
+                "Error: Invalid format. Please use: <operation> <number1> <number2>\n"
+                "Example: add 5 3\n"
+                "Type 'help' for available commands."
+            )
 
     return None
 

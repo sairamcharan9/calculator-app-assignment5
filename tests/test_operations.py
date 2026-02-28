@@ -23,6 +23,7 @@ from app.operations import (
     power,
     root,
     percentage,
+    sqrt,
     get_operation,
     get_supported_operations,
     OPERATIONS,
@@ -210,6 +211,33 @@ def test_percentage(a: Decimal, b: Decimal, expected: Decimal) -> None:
 
 
 # ---------------------------------------------------------------------------
+# sqrt
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "a, expected",
+    [
+        (Decimal("9"), Decimal("3")),
+        (Decimal("0"), Decimal("0")),
+        (Decimal("1"), Decimal("1")),
+        (Decimal("4"), Decimal("2")),
+        (Decimal("0.25"), Decimal("0.5")),
+    ],
+    ids=["sqrt_9", "sqrt_0", "sqrt_1", "sqrt_4", "sqrt_0.25"],
+)
+def test_sqrt(a: Decimal, expected: Decimal) -> None:
+    """Test sqrt with various inputs."""
+    assert sqrt(a) == expected
+
+
+def test_sqrt_negative() -> None:
+    """Test that sqrt of a negative number raises InvalidOperationError."""
+    with pytest.raises(InvalidOperationError):
+        sqrt(Decimal("-9"))
+
+
+# ---------------------------------------------------------------------------
 # Strategy registry helpers
 # ---------------------------------------------------------------------------
 
@@ -219,8 +247,8 @@ class TestStrategyRegistry:
 
     @pytest.mark.parametrize(
         "name",
-        ["add", "subtract", "multiply", "divide", "power", "root", "percentage"],
-        ids=["add", "subtract", "multiply", "divide", "power", "root", "percentage"],
+        ["add", "subtract", "multiply", "divide", "power", "root", "percentage", "sqrt"],
+        ids=["add", "subtract", "multiply", "divide", "power", "root", "percentage", "sqrt"],
     )
     def test_get_operation_valid(self, name: str) -> None:
         """Known names return a callable."""
@@ -235,9 +263,9 @@ class TestStrategyRegistry:
     def test_get_supported_operations(self) -> None:
         """All operations are returned."""
         ops = get_supported_operations()
-        expected_ops = {"add", "subtract", "multiply", "divide", "power", "root", "percentage"}
+        expected_ops = {"add", "subtract", "multiply", "divide", "power", "root", "percentage", "sqrt"}
         assert set(ops) == expected_ops
 
     def test_operations_dict(self) -> None:
         """OPERATIONS dict contains all expected keys."""
-        assert len(OPERATIONS) == 7
+        assert len(OPERATIONS) == 8

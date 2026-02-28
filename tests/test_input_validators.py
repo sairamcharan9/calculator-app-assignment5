@@ -28,8 +28,9 @@ class TestValidateInputParts:
             ["divide", "20", "4"],
             ["power", "2", "8"],
             ["root", "9", "2"],
+            ["sqrt", "9"],
         ],
-        ids=["add", "subtract", "multiply", "divide", "power", "root"],
+        ids=["add", "subtract", "multiply", "divide", "power", "root", "sqrt"],
     )
     def test_valid_input(self, parts: list[str]) -> None:
         """Valid three-token input with known operation returns None."""
@@ -55,10 +56,9 @@ class TestValidateInputParts:
         "parts",
         [
             ["modulo", "5", "3"],
-            ["sqrt", "9", "0"],
             ["unknown", "1", "2"],
         ],
-        ids=["modulo", "sqrt", "unknown"],
+        ids=["modulo", "unknown"],
     )
     def test_unknown_operation(self, parts: list[str]) -> None:
         """Unknown operation name returns an error."""

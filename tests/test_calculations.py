@@ -124,5 +124,5 @@ class TestCalculationFactory:
     def test_get_supported_operations(self) -> None:
         """All operations are returned."""
         ops = CalculationFactory.get_supported_operations()
-        expected_ops = {"add", "subtract", "multiply", "divide", "power", "root", "percentage"}
+        expected_ops = {"add", "subtract", "multiply", "divide", "power", "root", "percentage", "sqrt"}
         assert set(ops) == expected_ops

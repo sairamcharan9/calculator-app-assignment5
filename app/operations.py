@@ -111,6 +111,21 @@ def percentage(a: Decimal, b: Decimal) -> Decimal:
     return a * (b / Decimal("100"))
 
 
+def sqrt(a: Decimal) -> Decimal:
+    """Return the square root of *a*.
+
+    Raises:
+        InvalidOperationError: If *a* is negative.
+
+    Examples:
+        >>> sqrt(Decimal('9'))
+        Decimal('3')
+    """
+    if a < 0:
+        raise InvalidOperationError("Square root of a negative number is not allowed.")
+    return a.sqrt()
+
+
 # ---------------------------------------------------------------------------
 # Strategy registry
 # ---------------------------------------------------------------------------
@@ -124,6 +139,7 @@ OPERATIONS: dict[str, callable] = {
     "power": power,
     "root": root,
     "percentage": percentage,
+    "sqrt": sqrt,
 }
 
 

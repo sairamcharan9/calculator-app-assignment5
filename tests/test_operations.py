@@ -2,7 +2,7 @@
 Tests for the Operations Module
 ================================
 
-Parameterized tests covering all six arithmetic operations:
+Parameterized tests covering all ten arithmetic operations:
 add, subtract, multiply, divide, power, root, percentage, cube, cbrt — including edge cases
 (zero, negative numbers, decimals, large numbers, division by zero,
 root by zero).
@@ -229,7 +229,7 @@ def test_percentage(a: Decimal, b: Decimal, expected: Decimal) -> None:
     ids=["sqrt_9", "sqrt_0", "sqrt_1", "sqrt_4", "sqrt_0.25"],
 )
 def test_sqrt(a: Decimal, expected: Decimal) -> None:
-    """Test sqrt with various inputs."""
+    """Test sqrt with various positive and zero inputs."""
     assert sqrt(a) == expected
 
 

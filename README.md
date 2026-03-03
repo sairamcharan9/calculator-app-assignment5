@@ -26,6 +26,7 @@ Create a `.env` file in the root directory to customize the application:
 CALCULATOR_LOG_DIR=logs
 CALCULATOR_LOG_FILE=calculator.log
 CALCULATOR_HISTORY_DIR=data
+CALCULATOR_HISTORY_FILE=history.csv
 CALCULATOR_MAX_HISTORY_SIZE=1000
 CALCULATOR_AUTO_SAVE=true
 CALCULATOR_PRECISION=2

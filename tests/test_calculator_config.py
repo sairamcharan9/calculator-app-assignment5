@@ -114,3 +114,24 @@ class TestParsers:
         assert CalculatorConfig._parse_float("1e10", "TEST") == 1e10
         with pytest.raises(ConfigurationError):
             CalculatorConfig._parse_float("abc", "TEST")
+
+    def test_parse_bool(self):
+        assert CalculatorConfig._parse_bool("true", "TEST") is True
+        assert CalculatorConfig._parse_bool("false", "TEST") is False
+        with pytest.raises(ConfigurationError):
+            CalculatorConfig._parse_bool("abc", "TEST")
+
+    def test_parse_positive_int(self):
+        assert CalculatorConfig._parse_positive_int("1", "TEST") == 1
+        with pytest.raises(ConfigurationError):
+            CalculatorConfig._parse_positive_int("0", "TEST")
+        with pytest.raises(ConfigurationError):
+            CalculatorConfig._parse_positive_int("-1", "TEST")
+        with pytest.raises(ConfigurationError):
+            CalculatorConfig._parse_positive_int("abc", "TEST")
+
+    def test_init_with_invalid_values(self, tmp_path):
+        with pytest.raises(ConfigurationError):
+            os.environ["CALCULATOR_MAX_HISTORY_SIZE"] = "abc"
+            CalculatorConfig()
+            os.environ.pop("CALCULATOR_MAX_HISTORY_SIZE")

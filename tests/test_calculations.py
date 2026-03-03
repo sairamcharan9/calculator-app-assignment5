@@ -74,6 +74,11 @@ class TestCalculation:
         with pytest.raises(DivisionByZeroError):
             Calculation(Decimal("10"), Decimal("0"), divide, "divide")
 
+    def test_negative_precision(self) -> None:
+        """Test that negative precision is handled correctly."""
+        calc = Calculation(Decimal("2.123"), Decimal("3.456"), add, "add", precision=-1)
+        assert calc.result == Decimal("5.579")
+
 
 # ===========================================================================
 # CalculationFactory

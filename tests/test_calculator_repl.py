@@ -14,7 +14,8 @@ from decimal import Decimal
 from unittest.mock import patch, MagicMock
 
 from app.calculator_repl import Calculator
-from app.exceptions import CalculationError
+from app.exceptions import CalculationError, ConfigurationError
+from app.calculator_config import CalculatorConfig
 
 
 @pytest.fixture
@@ -48,6 +49,11 @@ class TestCalculatorREPL:
 
         assert "History cleared" in calculator.process_input("clear")
         assert len(calculator.history) == 0
+    
+    def test_process_input_special_commands_no_history(self, calculator: Calculator) -> None:
+        """Special commands return expected output."""
+        assert "No calculations in history" in calculator.process_input("history")
+
 
     def test_undo_redo(self, calculator: Calculator) -> None:
         """Undo and redo commands work through the caretaker."""
@@ -59,6 +65,11 @@ class TestCalculatorREPL:
 
         calculator.process_input("redo")
         assert len(calculator.history) == 1
+
+    def test_undo_redo_nothing_to_do(self, calculator: Calculator) -> None:
+        """Undo and redo commands work through the caretaker."""
+        assert "Nothing to undo" in calculator.process_input("undo")
+        assert "Nothing to redo" in calculator.process_input("redo")
 
     def test_invalid_input(self, calculator: Calculator) -> None:
         """Invalid commands/operands return error messages."""
@@ -75,3 +86,33 @@ class TestCalculatorREPL:
 
         assert "Loaded 1" in calculator.process_input("load")
         assert len(calculator.history) == 1
+
+    def test_process_input_empty(self, calculator: Calculator) -> None:
+        """Test that empty input is handled correctly."""
+        assert calculator.process_input("") == ""
+
+    def test_process_input_invalid_operation(self, calculator: Calculator) -> None:
+        """Test that InvalidOperation is handled correctly."""
+        assert "not a valid number" in calculator.process_input("add a b")
+
+    def test_process_input_calculation_error(self, calculator: Calculator) -> None:
+        """Test that CalculationError is handled correctly."""
+        assert "Error: Division by zero" in calculator.process_input("divide 1 0")
+
+    def test_handle_history_empty(self, calculator: Calculator) -> None:
+        """Test that _handle_history works correctly with empty history."""
+        assert "No calculations in history" in calculator.process_input("history")
+
+    def test_configuration_error_fallback(self, monkeypatch) -> None:
+        class MockCalculatorConfig(CalculatorConfig):
+            _call_count = 0
+            def __init__(self, env_path=None):
+                MockCalculatorConfig._call_count += 1
+                if MockCalculatorConfig._call_count == 1:
+                    raise ConfigurationError("Mocked config error")
+                super().__init__(env_path=env_path)
+
+        monkeypatch.setattr('app.calculator_repl.CalculatorConfig', MockCalculatorConfig)
+        calculator = Calculator()
+        assert calculator.config is not None
+        assert isinstance(calculator.config, MockCalculatorConfig)

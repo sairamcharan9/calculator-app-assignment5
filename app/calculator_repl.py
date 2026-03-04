@@ -23,6 +23,7 @@ from decimal import Decimal, InvalidOperation
 from app.calculation import CalculationFactory
 from app.calculator_config import CalculatorConfig
 from app.calculator_memento import MementoCaretaker
+from app.commands import SPECIAL_COMMANDS
 from app.exceptions import (
     CalculationError,
     ConfigurationError,
@@ -46,9 +47,6 @@ class Calculator:
         history: The ``CalculationHistory`` instance.
         caretaker: The ``MementoCaretaker`` for undo / redo.
     """
-
-    SPECIAL_COMMANDS = ("help", "?", "history", "clear", "exit",
-                        "undo", "redo", "save", "load")
 
     def __init__(self, env_path: str | None = None) -> None:
         """Initialize the calculator subsystems.
@@ -133,21 +131,11 @@ class Calculator:
 
         command = parts[0]
 
-        # --- Handle special commands ---
-        if command in ("help", "?"):
-            return self._handle_help()
-        if command == "history":
-            return self._handle_history()
-        if command == "clear":
-            return self._handle_clear()
-        if command == "undo":
-            return self._handle_undo()
-        if command == "redo":
-            return self._handle_redo()
-        if command == "save":
-            return self._handle_save()
-        if command == "load":
-            return self._handle_load()
+        if command in SPECIAL_COMMANDS:
+            command_info = SPECIAL_COMMANDS[command]
+            handler_method_name = command_info["handler"]
+            handler_method = getattr(self, handler_method_name)
+            return handler_method()
 
         # --- LBYL: validate format ---
         validation_error = validate_input_parts(parts, self.config.max_input_value)
@@ -192,6 +180,12 @@ class Calculator:
     def _handle_help(self) -> str:
         """Display help information."""
         operations = CalculationFactory.get_supported_operations()
+
+        # Build the special commands help dynamically
+        special_commands_help = "\n".join(
+            f"  {cmd:<10} - {info['description']}"
+            for cmd, info in SPECIAL_COMMANDS.items() if info['handler']
+        )
         help_text = (
             "=== Calculator Help ===\n"
             "\n"
@@ -211,15 +205,7 @@ class Calculator:
             "  percent 5 100  => 5 %% 100 = 5.00\n"
             "  abs_diff 5 10  => 5 |-| 10 = 5.00\n"
             "\n"
-            "Special commands:\n"
-            "  help / ?   - Show this help message\n"
-            "  history    - Show calculation history\n"
-            "  clear      - Clear calculation history\n"
-            "  undo       - Undo last action\n"
-            "  redo       - Redo last undone action\n"
-            "  save       - Save history to CSV\n"
-            "  load       - Load history from CSV\n"
-            "  exit       - Exit the calculator"
+            f"Special commands:\n{special_commands_help}"
         )
         print(help_text)
         return help_text

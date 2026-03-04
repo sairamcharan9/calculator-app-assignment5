@@ -61,9 +61,26 @@ python main.py
 
 ### Supported Commands
 
-- **Arithmetic**: `add`, `subtract`, `multiply`, `divide`, `power`, `root`, `modulus`, `int_divide`, `percent`, `abs_diff`.
-- **History**: `history` (show), `clear` (clear), `save` (manual save), `load` (manual load).
-- **Control**: `undo`, `redo`, `help`, `exit`.
+| **Command**    | **Syntax**                  | **Description**                                             |
+|----------------|-----------------------------|-------------------------------------------------------------|
+| `add`          | `add <num1> <num2>`         | Adds two numbers.                                           |
+| `subtract`     | `subtract <num1> <num2>`    | Subtracts the second number from the first.                 |
+| `multiply`     | `multiply <num1> <num2>`    | Multiplies two numbers.                                     |
+| `divide`       | `divide <num1> <num2>`      | Divides the first number by the second.                     |
+| `power`        | `power <base> <exp>`        | Raises a number to the power of an exponent.                |
+| `root`         | `root <num> <n>`            | Calculates the nth root of a number.                        |
+| `modulus`      | `modulus <num1> <num2>`     | Finds the remainder of a division.                          |
+| `int_divide`   | `int_divide <num1> <num2>`  | Performs integer division.                                  |
+| `percent`      | `percent <num1> <num2>`     | Calculates the percentage of the first number to the second.|
+| `abs_diff`     | `abs_diff <num1> <num2>`    | Calculates the absolute difference between two numbers.     |
+| `history`      | `history`                   | Displays the calculation history.                           |
+| `clear`        | `clear`                     | Clears the calculation history.                             |
+| `undo`         | `undo`                      | Undoes the last calculation.                                |
+| `redo`         | `redo`                      | Redoes the last undone calculation.                         |
+| `save`         | `save`                      | Manually saves the calculation history to a file.           |
+| `load`         | `load`                      | Loads the calculation history from a file.                  |
+| `help`         | `help`                      | Displays the list of available commands.                    |
+| `exit`         | `exit`                      | Exits the application.                                      |
 
 Example:
 ```
